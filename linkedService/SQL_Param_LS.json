@@ -1,0 +1,20 @@
+{
+	"name": "SQL_Param_LS",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"parameters": {
+			"databaseNameparam": {
+				"type": "string"
+			},
+			"userNameparam": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "AzureSqlDatabase",
+		"typeProperties": {
+			"connectionString": "integrated security=False;encrypt=True;connection timeout=30;data source=azurelearningdbserver1.database.windows.net;initial catalog=@{linkedService().databaseNameparam};user id=@{linkedService().userNameparam}",
+			"encryptedCredential": "ew0KICAiVmVyc2lvbiI6ICIyMDE3LTExLTMwIiwNCiAgIlByb3RlY3Rpb25Nb2RlIjogIktleSIsDQogICJTZWNyZXRDb250ZW50VHlwZSI6ICJQbGFpbnRleHQiLA0KICAiQ3JlZGVudGlhbElkIjogIkRBVEFGQUNUT1JZQDkzRkQ4NUFCLUVEQ0QtNDZCNy04NTg5LTE2ODhBNkZCNzJDM19lOTRhYmZkNi00NTY3LTQxZmUtYTM4ZC00OTM3NjI5OGFmZTIiDQp9"
+		}
+	}
+}

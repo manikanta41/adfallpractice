@@ -1,0 +1,38 @@
+{
+	"name": "ABS_FOLDER_FILE_PARAM_SOURCE_DS",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "BLOB_DS",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"FolderNameParam": {
+				"type": "string"
+			},
+			"FileNameParam": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": {
+					"value": "@dataset().FileNameParam",
+					"type": "Expression"
+				},
+				"container": {
+					"value": "@dataset().FolderNameParam",
+					"type": "Expression"
+				}
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

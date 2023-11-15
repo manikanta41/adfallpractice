@@ -1,0 +1,66 @@
+{
+	"name": "Ingestion_Customer_JOIN_ADLS",
+	"properties": {
+		"activities": [
+			{
+				"name": "Customer_JOIN_CustomerAddress_ADLS",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "SELECT CONCAT(FirstName,' ',MiddleName,' ',LastName) as CustomerName, CA.AddressType   FROM saleslt.customer AS C\nINNER JOIN saleslt.customeraddress AS CA\nON C.CustomerID=CA.CustomerID",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".csv"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "SQL_DB_Customer_DS",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ADLS_CSV_Generic_DS",
+						"type": "DatasetReference",
+						"parameters": {
+							"FolderPathParam": "Address"
+						}
+					}
+				]
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2023-10-23T17:18:18Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

@@ -1,0 +1,21 @@
+{
+	"name": "SQL_LS_DS",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "SQL_Param_LS",
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"databaseNameparam": "azurelearningsqldb",
+				"userNameparam": "azurelib"
+			}
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "SalesLT",
+			"table": "Customer"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

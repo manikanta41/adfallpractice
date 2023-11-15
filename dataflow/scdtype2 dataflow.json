@@ -1,0 +1,160 @@
+{
+	"name": "scdtype2 dataflow",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ADLS_SCD_FILE_DS",
+						"type": "DatasetReference"
+					},
+					"name": "Filedata"
+				},
+				{
+					"dataset": {
+						"referenceName": "SQLDB_SCD_TYPE2_TABLE_DS",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "SQLDB_SINK_SCD_DS",
+						"type": "DatasetReference"
+					},
+					"name": "sink2"
+				},
+				{
+					"dataset": {
+						"referenceName": "SQLDB_SINK_SCD_DS",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "select1"
+				},
+				{
+					"name": "lookup1"
+				},
+				{
+					"name": "existingrecords"
+				},
+				{
+					"name": "select2"
+				},
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "alterRow1"
+				},
+				{
+					"name": "derivedColumn2"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          id as short,",
+				"          name as string,",
+				"          city as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> Filedata",
+				"source(output(",
+				"          surrKey as integer,",
+				"          id as integer,",
+				"          name as string,",
+				"          city as string,",
+				"          active_flag as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> source1",
+				"source1 select(mapColumn(",
+				"          sql_surrKey = surrKey,",
+				"          sql_id = id,",
+				"          sql_name = name,",
+				"          sql_city = city,",
+				"          sql_active_flag = active_flag",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"Filedata, select1 lookup(id == sql_id,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> lookup1",
+				"lookup1 filter(!isNull(sql_id)) ~> existingrecords",
+				"existingrecords select(mapColumn(",
+				"          sql_surrKey,",
+				"          sql_id,",
+				"          sql_name,",
+				"          sql_city,",
+				"          sql_active_flag",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select2",
+				"select2 derive(sql_active_flag = 0) ~> derivedColumn1",
+				"derivedColumn1 alterRow(updateIf(1==1)) ~> alterRow1",
+				"Filedata derive(active_flag = 1) ~> derivedColumn2",
+				"alterRow1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          surrKey as integer,",
+				"          id as integer,",
+				"          name as string,",
+				"          city as string,",
+				"          active_flag as integer",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:false,",
+				"     updateable:true,",
+				"     upsertable:false,",
+				"     keys:['id','surrKey'],",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     saveOrder: 1,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          surrKey = sql_surrKey,",
+				"          id = sql_id,",
+				"          name = sql_name,",
+				"          city = sql_city,",
+				"          active_flag = sql_active_flag",
+				"     )) ~> sink2",
+				"derivedColumn2 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          surrKey as integer,",
+				"          id as integer,",
+				"          name as string,",
+				"          city as string,",
+				"          active_flag as integer",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     saveOrder: 2,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          id,",
+				"          name,",
+				"          city,",
+				"          active_flag",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}
