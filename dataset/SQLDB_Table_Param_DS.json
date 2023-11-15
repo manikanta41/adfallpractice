@@ -1,0 +1,31 @@
+{
+	"name": "SQLDB_Table_Param_DS",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "SQL_DB_LS",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"tablenameparam": {
+				"type": "string"
+			},
+			"tablescemaname": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": {
+				"value": "@dataset().tablescemaname",
+				"type": "Expression"
+			},
+			"table": {
+				"value": "@dataset().tablenameparam",
+				"type": "Expression"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

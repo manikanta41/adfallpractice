@@ -1,0 +1,146 @@
+{
+	"name": "Customer_Table_To_ADLS_JSON",
+	"properties": {
+		"activities": [
+			{
+				"name": "Check Customer Count - 200",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "Get Threshold Value",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@greater(int(activity('Get Customer Count').output.firstRow.customercount), int(activity('Get Threshold Value').output.firstRow.threshold_value))\n",
+						"type": "Expression"
+					},
+					"ifTrueActivities": [
+						{
+							"name": "Customer_SQLDB_To_JSON",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "AzureSqlSource",
+									"queryTimeout": "02:00:00",
+									"partitionOption": "None"
+								},
+								"sink": {
+									"type": "JsonSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									},
+									"formatSettings": {
+										"type": "JsonWriteSettings"
+									}
+								},
+								"enableStaging": false
+							},
+							"inputs": [
+								{
+									"referenceName": "SQL_DB_Generic_DS",
+									"type": "DatasetReference",
+									"parameters": {
+										"SchemaNameParam": "saleslt",
+										"TableNameParam": "customer"
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "ADLS_Generic_JSON_DS",
+									"type": "DatasetReference",
+									"parameters": {
+										"FolderPathName": "ThresoldCustomerJSON"
+									}
+								}
+							]
+						}
+					]
+				}
+			},
+			{
+				"name": "Get Customer Count",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "select count(*) as customercount from saleslt.customer",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "SQL_DB_Generic_DS",
+						"type": "DatasetReference",
+						"parameters": {
+							"SchemaNameParam": "saleslt",
+							"TableNameParam": "customer"
+						}
+					}
+				}
+			},
+			{
+				"name": "Get Threshold Value",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "Get Customer Count",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"dataset": {
+						"referenceName": "ADLS_Thresold_DS",
+						"type": "DatasetReference"
+					}
+				}
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2023-10-25T11:41:56Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

@@ -1,0 +1,9 @@
+{
+	"name": "lerarningfactory100",
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "2284ae75-e525-438e-bd7f-90d99f3334fa",
+		"tenantId": "cad830e4-554f-4361-bae5-c865233fb77f"
+	}
+}

@@ -1,0 +1,33 @@
+{
+	"name": "DS_ABS_Config",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_ABS_Generic",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "config.csv",
+				"container": "metadata"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "sourcefolder",
+				"type": "String"
+			},
+			{
+				"name": "sinkfolder",
+				"type": "String"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}
